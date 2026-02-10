@@ -2,6 +2,10 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title>LunexRub - Официальный сайт</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -149,7 +153,6 @@
 
     function loginSuccess(n, p, isAdmin) {
         localStorage.setItem('lunex_nick', n); localStorage.setItem('lunex_pass', p);
-        sessionStorage.setItem('isAdmin', isAdmin);
         document.getElementById('loginSec').classList.add('hidden');
         document.getElementById('topNav').classList.remove('hidden');
         document.getElementById('userLabel').innerText = n;
