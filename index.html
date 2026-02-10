@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>LunexRub - Официальный сайт</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
         body { background: #313131; color: #AAAAAA; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        .mc-header { background: #1e1e1e; width: 100%; padding: 20px; text-align: center; border-bottom: 4px solid #3c8527; color: #FFF; font-weight: bold; font-size: 24px; }
-        .nav-bar { margin: 20px 0; display: flex; gap: 10px; }
+        .mc-header { background: #1e1e1e; width: 100%; padding: 20px; text-align: center; border-bottom: 4px solid #3c8527; color: #FFF; font-weight: bold; font-size: 24px; text-transform: uppercase; }
+        .nav-bar { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
         .nav-btn { background: #535353; border: 2px solid #000; color: white; padding: 10px 20px; cursor: pointer; box-shadow: inset -4px -4px 0px #222; font-weight: bold; position: relative; }
         .nav-btn:hover { background: #707070; }
-        .container { background: #c6c6c6; border: 4px solid #000; color: #333; width: 80%; max-width: 650px; padding: 20px; box-shadow: inset -6px -6px 0px #555; text-align: center; }
+        .container { background: #c6c6c6; border: 4px solid #000; color: #333; width: 90%; max-width: 750px; padding: 20px; box-shadow: inset -6px -6px 0px #555; text-align: center; margin-bottom: 30px; }
         h2 { text-shadow: 1px 1px #000; color: #FFF; background: #555; padding: 10px; border: 2px solid #000; margin-top: 0; }
         input, textarea { width: 85%; padding: 12px; margin: 10px 0; border: 2px solid #000; background: #000; color: #3f3; font-family: monospace; font-size: 16px; }
-        textarea { height: 100px; color: #fff; resize: none; }
-        .mc-button { background: #3c8527; color: white; border: 2px solid #000; padding: 12px 30px; cursor: pointer; box-shadow: inset -4px -4px 0px #1a3911; font-weight: bold; }
-        .rule-box { text-align: left; background: #a5a5a5; padding: 15px; border: 2px solid #000; height: 350px; overflow-y: scroll; font-size: 14px; color: #000; }
+        .mc-button { background: #3c8527; color: white; border: 2px solid #000; padding: 12px 25px; cursor: pointer; box-shadow: inset -4px -4px 0px #1a3911; font-weight: bold; margin: 5px; }
+        .tool-card { background: #a5a5a5; border: 2px solid #000; padding: 15px; margin: 10px 0; text-align: left; }
+        .rule-box { text-align: left; background: #a5a5a5; padding: 15px; border: 2px solid #000; height: 450px; overflow-y: scroll; font-size: 13px; color: #000; line-height: 1.5; }
+        .rule-cat { background: #777; color: white; padding: 5px; font-weight: bold; margin: 10px 0; border-left: 5px solid #3c8527; }
+        .req-card { border: 2px solid #000; background: #ddd; padding: 15px; margin-top: 10px; text-align: left; position: relative; }
+        .del-btn { position: absolute; top: 5px; right: 5px; background: #800; color: white; border: 1px solid #000; cursor: pointer; padding: 2px 6px; font-size: 10px; }
         .hidden { display: none !important; }
-        .req-card { border: 2px solid #000; background: #ddd; padding: 15px; margin-top: 15px; text-align: left; color: #000; }
-        .alert-mark { background: red; color: white; border-radius: 50%; padding: 2px 8px; font-size: 14px; position: absolute; top: -10px; right: -10px; border: 2px solid white; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -28,52 +29,94 @@
 <div class="mc-header">LUNEXRUB.RU</div>
 
 <div class="nav-bar hidden" id="topNav">
-    <button class="nav-btn" onclick="showSection('profileSec')">ПРОФИЛЬ</button>
-    <button class="nav-btn" onclick="showSection('rulesSec')">ПРАВИЛА</button>
-    <button id="adminNavBtn" class="nav-btn hidden" style="background:#800" onclick="showSection('adminSec')">
-        ИГРОКИ <span id="adminAlert" class="alert-mark hidden">!</span>
-    </button>
-    <button class="nav-btn" style="background:#444" onclick="logout()">ВЫЙТИ</button>
+    <button class="nav-btn" onclick="showSection('profileSec')"><i class="fas fa-user"></i> ПРОФИЛЬ</button>
+    <button class="nav-btn" onclick="showSection('toolsSec')"><i class="fas fa-screwdriver-wrench"></i> ФУНКЦИИ</button>
+    <button class="nav-btn" onclick="showSection('rulesSec')"><i class="fas fa-gavel"></i> ПРАВИЛА</button>
+    <button id="adminNavBtn" class="nav-btn hidden" style="background:#800" onclick="showSection('adminSec')"><i class="fas fa-crown"></i> АДМИНКА</button>
+    <button class="nav-btn" style="background:#444" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ВЫЙТИ</button>
 </div>
 
 <div id="loginSec" class="container">
-    <h2>ВХОД / РЕГИСТРАЦИЯ</h2>
+    <h2><i class="fas fa-lock"></i> ВХОД</h2>
     <input type="text" id="username" placeholder="Ваш ник...">
     <input type="password" id="password" placeholder="Пароль">
-    <br><button class="mc-button" onclick="handleLogin()">ВОЙТИ</button>
+    <br><button class="mc-button" onclick="handleLogin()">ИГРАТЬ</button>
 </div>
 
 <div id="profileSec" class="container hidden">
-    <h2>МОЙ АККАУНТ</h2>
-    <p>Ник: <b id="userLabel"></b> | Статус: <b style="color:black">Игрок</b></p>
+    <h2>КАБИНЕТ</h2>
+    <p>Игрок: <b id="userLabel" style="color:#1a3911"></b></p>
     <hr>
-    <div id="reqForm">
-        <textarea id="requestText" placeholder="Напишите сообщение админу..."></textarea>
-        <br><button class="mc-button" onclick="sendToAdmin()">ОТПРАВИТЬ</button>
+    <div id="userOnlyForm">
+        <div id="reqForm">
+            <textarea id="requestText" placeholder="Написать админу..."></textarea>
+            <br><button class="mc-button" onclick="sendToAdmin()">ОТПРАВИТЬ</button>
+        </div>
+        <div id="reqOk" class="hidden">
+            <p id="statusInfo" style="padding:10px; background:white; border:1px solid #000;"></p>
+            <button class="mc-button" onclick="resetRequest()">НОВОЕ ПИСЬМО</button>
+        </div>
     </div>
-    <div id="reqOk" class="hidden">
-        <b id="statusInfo">Ожидание...</b><br><br>
-        <button class="mc-button" onclick="resetRequest()">НОВОЕ СООБЩЕНИЕ</button>
+</div>
+
+<div id="toolsSec" class="container hidden">
+    <h2>ИНСТРУМЕНТЫ</h2>
+    <div class="tool-card">
+        <h3><i class="fas fa-copy"></i> АДРЕС СЕРВЕРА</h3>
+        <p>IP: <b>1234-W3EV.aternos.me:64284</b></p>
+        <button class="mc-button" onclick="copyIp()">КОПИРОВАТЬ</button>
+    </div>
+    <div class="tool-card">
+        <h3><i class="fas fa-calculator"></i> КАЛЬКУЛЯТОР ПОРТАЛА</h3>
+        <input type="number" id="coordX" placeholder="X" style="width:35%">
+        <input type="number" id="coordZ" placeholder="Z" style="width:35%">
+        <button class="mc-button" onclick="calcNether()">РАСЧЕТ</button>
+        <p id="netherRes"></p>
+    </div>
+    <div class="tool-card">
+        <h3><i class="fas fa-dice"></i> СЛУЧАЙНОЕ ЗАДАНИЕ</h3>
+        <p id="goalText">Нажми, чтобы получить цель!</p>
+        <button class="mc-button" onclick="genGoal()">ПОЛУЧИТЬ</button>
     </div>
 </div>
 
 <div id="rulesSec" class="container hidden">
-    <h2>ПРАВИЛА</h2>
-    <div class="rule-box">1.1 Читы - БАН.<br>1.2 Гриф - БАН.</div>
+    <h2>ЗАКОНЫ СЕРВЕРА</h2>
+    <div class="rule-box">
+        <div class="rule-cat">1. ОСНОВНЫЕ ЗАПРЕТЫ</div>
+        1.1 Читы (Fly, X-ray, Aura, SpeedHack) — <b>ПЕРМАЧ.</b><br>
+        1.2 Гриферство (порча чужого имущества) — <b>БАН 14 ДНЕЙ.</b><br>
+        1.3 Использование багов для дюпа вещей — <b>ПЕРМАЧ.</b><br>
+        1.4 Постройка лаг-машин — <b>БАН 30 ДНЕЙ.</b><br>
+        <div class="rule-cat">2. ЧАТ И ПОВЕДЕНИЕ</div>
+        2.1 Маты в чрезмерном количестве — <b>МУТ 1 ЧАС.</b><br>
+        2.2 Оскорбление игроков — <b>МУТ 2 ЧАСА.</b><br>
+        2.3 Оскорбление Администрации — <b>БАН 1 ДЕНЬ.</b><br>
+        2.4 Упоминание родных — <b>БАН 30 ДНЕЙ.</b><br>
+        2.5 Реклама других серверов — <b>ПЕРМАЧ.</b><br>
+        <div class="rule-cat">3. ИГРОВОЙ МИР</div>
+        3.1 Столбы и ямы 1х1 — <b>КИК.</b><br>
+        3.2 Мультиаккаунты — <b>БАН ВСЕХ АККОВ.</b><br>
+        3.3 Обман при обмене — <b>БАН 3 ДНЯ.</b><br>
+        3.4 Залив приватов — <b>БАН 7 ДНЕЙ.</b><br>
+        <div class="rule-cat">4. АДМИНИСТРАЦИЯ</div>
+        4.1 Выпрашивание ресурсов/админки — <b>МУТ.</b><br>
+        4.2 Обман админа — <b>БАН 5 ДНЕЙ.</b>
+    </div>
 </div>
 
 <div id="adminSec" class="container hidden">
-    <h2 style="background:#800">АДМИН-ПАНЕЛЬ</h2>
-    <div id="requestList">Загрузка...</div>
+    <h2 style="background:#800">АДМИН-ЦЕНТР</h2>
+    <p>Игроков в базе: <b id="userCount">0</b></p>
+    <div id="requestList"></div>
 </div>
 
 <script>
-    // ТВОИ КЛЮЧИ
     const firebaseConfig = {
         apiKey: "AIzaSyBgqMUjf12clWN5FZg7nPBg0QlWwtGXBnY",
         authDomain: "lunex-4d0b2.firebaseapp.com",
         projectId: "lunex-4d0b2",
-        databaseURL: "https://lunex-4d0b2-default-rtdb.firebaseio.com/", // Ссылка на БД
+        databaseURL: "https://lunex-4d0b2-default-rtdb.firebaseio.com/",
         storageBucket: "lunex-4d0b2.firebasestorage.app",
         messagingSenderId: "758665086032",
         appId: "1:758665086032:web:93401d2dde23ef28337d55"
@@ -83,88 +126,96 @@
     const db = firebase.database();
     const ADM_N = "Jokeyu", ADM_P = "KeL_12Lek5Joke";
 
+    window.onload = function() {
+        const n = localStorage.getItem('lunex_nick'), p = localStorage.getItem('lunex_pass');
+        if(n && p) { 
+            document.getElementById('username').value = n;
+            document.getElementById('password').value = p;
+            handleLogin(true);
+        }
+    };
+
+    function handleLogin(isAuto = false) {
+        const n = document.getElementById('username').value.trim(), p = document.getElementById('password').value;
+        if(!n || !p) return;
+        if(n === ADM_N && p === ADM_P) { loginSuccess(n, p, true); return; }
+        db.ref('users/' + n).once('value').then(s => {
+            const u = s.val();
+            if(u && u.pass !== p) { if(!isAuto) alert("Пароль неверный!"); return; }
+            if(!u) db.ref('users/' + n).set({ nick: n, pass: p, msg: "", result: "" });
+            loginSuccess(n, p, false);
+        });
+    }
+
+    function loginSuccess(n, p, isAdmin) {
+        localStorage.setItem('lunex_nick', n); localStorage.setItem('lunex_pass', p);
+        sessionStorage.setItem('isAdmin', isAdmin);
+        document.getElementById('loginSec').classList.add('hidden');
+        document.getElementById('topNav').classList.remove('hidden');
+        document.getElementById('userLabel').innerText = n;
+        if(isAdmin) {
+            document.getElementById('adminNavBtn').classList.remove('hidden');
+            document.getElementById('userOnlyForm').classList.add('hidden');
+            watchAdmin(); showSection('adminSec');
+        } else {
+            document.getElementById('userOnlyForm').classList.remove('hidden');
+            watchUser(n); showSection('profileSec');
+        }
+    }
+
     function showSection(id) {
         document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
     }
 
-    function handleLogin() {
-        const n = document.getElementById('username').value.trim();
-        const p = document.getElementById('password').value;
-        if(!n || !p) return alert("Введите данные!");
-
-        if(n === ADM_N && p === ADM_P) {
-            sessionStorage.setItem('logged', n);
-            sessionStorage.setItem('isAdmin', 'true');
-            initApp();
-            return;
-        }
-
-        db.ref('users/' + n).once('value').then(s => {
-            const u = s.val();
-            if(u && u.pass !== p) return alert("Ник занят!");
-            if(!u) db.ref('users/' + n).set({ nick: n, pass: p, msg: "", result: "" });
-            
-            sessionStorage.setItem('logged', n);
-            sessionStorage.setItem('isAdmin', 'false');
-            initApp();
-        });
-    }
-
-    function initApp() {
-        const n = sessionStorage.getItem('logged');
-        const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
-        document.getElementById('loginSec').classList.add('hidden');
-        document.getElementById('topNav').classList.remove('hidden');
-        document.getElementById('userLabel').innerText = n;
-
-        if(isAdmin) {
-            document.getElementById('adminNavBtn').classList.remove('hidden');
-            showSection('adminSec');
-            watchAdmin();
-        } else {
-            showSection('profileSec');
-            watchUser(n);
-        }
-    }
-
     function watchUser(n) {
         db.ref('users/' + n).on('value', s => {
-            const u = s.val();
-            const f = document.getElementById('reqForm'), o = document.getElementById('reqOk'), st = document.getElementById('statusInfo');
+            const u = s.val(); if(!u) return;
+            const st = document.getElementById('statusInfo');
             if(u.msg || u.result) {
-                f.classList.add('hidden'); o.classList.remove('hidden');
-                st.innerText = u.result ? "ОТВЕТ АДМИНА: " + u.result : "Доставлено. Ждите.";
-                st.style.color = u.result === "ОДОБРЕНО" ? "green" : (u.result === "ОТКАЗАНО" ? "red" : "black");
-            } else { f.classList.remove('hidden'); o.classList.add('hidden'); }
+                document.getElementById('reqForm').classList.add('hidden');
+                document.getElementById('reqOk').classList.remove('hidden');
+                st.innerText = u.result ? "ОТВЕТ АДМИНА: " + u.result : "Сообщение отправлено!";
+            } else {
+                document.getElementById('reqForm').classList.remove('hidden');
+                document.getElementById('reqOk').classList.add('hidden');
+            }
         });
     }
 
     function watchAdmin() {
         db.ref('users').on('value', s => {
             const users = s.val() || {};
-            const list = Object.values(users).filter(u => u.msg);
-            document.getElementById('adminAlert').classList.toggle('hidden', list.length === 0);
-            document.getElementById('requestList').innerHTML = list.length ? list.map(u => `
-                <div class="req-card">
-                    <b>${u.nick}</b>: ${u.msg}<br><br>
-                    <button class="mc-button" onclick="decide('${u.nick}','ОДОБРЕНО')">ОДОБРИТЬ</button>
-                    <button class="mc-button" style="background:#800" onclick="decide('${u.nick}','ОТКАЗАНО')">ОТКАЗАТЬ</button>
+            const list = Object.values(users);
+            document.getElementById('userCount').innerText = list.length;
+            document.getElementById('requestList').innerHTML = list.map(u => `
+                <div class="req-card" style="${u.msg ? 'border:2px solid #3c8527;' : ''}">
+                    <button class="del-btn" onclick="deleteUser('${u.nick}')">X</button>
+                    <b>${u.nick}</b> <small>(Pass: ${u.pass})</small><br>
+                    ${u.msg ? `<p style="background:#fff;padding:5px;">${u.msg}</p>
+                        <button class="mc-button" onclick="decide('${u.nick}','ОДОБРЕНО')">ОК</button>
+                        <button class="mc-button" style="background:#800" onclick="decide('${u.nick}','ОТКАЗ')">X</button>` : '<i>Нет сообщений</i>'}
                 </div>
-            `).join('') : "Сообщений нет.";
+            `).join('');
         });
     }
 
-    function sendToAdmin() {
-        const n = sessionStorage.getItem('logged'), t = document.getElementById('requestText').value.trim();
-        if(t) db.ref('users/' + n).update({ msg: t, result: "" });
+    function genGoal() {
+        const g = ["Добудь стак железа", "Скрафти седло", "Построй башню", "Приручи кота", "Найди заброшенную шахту", "Сделай огород", "Убей 5 скелетов"];
+        document.getElementById('goalText').innerText = g[Math.floor(Math.random()*g.length)];
     }
 
-    function decide(n, res) { db.ref('users/' + n).update({ msg: "", result: res }); }
-    function resetRequest() { db.ref('users/' + sessionStorage.getItem('logged')).update({ msg: "", result: "" }); }
-    function logout() { sessionStorage.clear(); location.reload(); }
+    function calcNether() {
+        let x = document.getElementById('coordX').value, z = document.getElementById('coordZ').value;
+        if(x && z) document.getElementById('netherRes').innerText = `Ад: X:${Math.round(x/8)}, Z:${Math.round(z/8)}`;
+    }
 
-    if(sessionStorage.getItem('logged')) initApp();
+    function copyIp() { navigator.clipboard.writeText("1234-W3EV.aternos.me:64284"); alert("IP скопирован!"); }
+    function sendToAdmin() { const n = localStorage.getItem('lunex_nick'), t = document.getElementById('requestText').value; if(t) db.ref('users/'+n).update({msg:t, result:""}); }
+    function decide(n, res) { db.ref('users/'+n).update({msg:"", result:res}); }
+    function deleteUser(n) { if(confirm('Удалить?')) db.ref('users/'+n).remove(); }
+    function resetRequest() { db.ref('users/'+localStorage.getItem('lunex_nick')).update({msg:"", result:""}); }
+    function logout() { localStorage.clear(); location.reload(); }
 </script>
 </body>
 </html>
