@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>LunexRub - Официальный сайт</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
         body { background: #313131; color: #AAAAAA; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
         .mc-header { background: #1e1e1e; width: 100%; padding: 20px; text-align: center; border-bottom: 4px solid #3c8527; color: #FFF; font-weight: bold; font-size: 24px; }
@@ -14,7 +16,7 @@
         input, textarea { width: 85%; padding: 12px; margin: 10px 0; border: 2px solid #000; background: #000; color: #3f3; font-family: monospace; font-size: 16px; }
         textarea { height: 100px; color: #fff; resize: none; }
         .mc-button { background: #3c8527; color: white; border: 2px solid #000; padding: 12px 30px; cursor: pointer; box-shadow: inset -4px -4px 0px #1a3911; font-weight: bold; }
-        .rule-box { text-align: left; background: #a5a5a5; padding: 15px; border: 2px solid #000; height: 350px; overflow-y: scroll; font-size: 14px; color: #000; line-height: 1.5; }
+        .rule-box { text-align: left; background: #a5a5a5; padding: 15px; border: 2px solid #000; height: 350px; overflow-y: scroll; font-size: 14px; color: #000; }
         .hidden { display: none !important; }
         .req-card { border: 2px solid #000; background: #ddd; padding: 15px; margin-top: 15px; text-align: left; color: #000; }
         .alert-mark { background: red; color: white; border-radius: 50%; padding: 2px 8px; font-size: 14px; position: absolute; top: -10px; right: -10px; border: 2px solid white; animation: blink 1s infinite; }
@@ -38,8 +40,7 @@
     <h2>ВХОД / РЕГИСТРАЦИЯ</h2>
     <input type="text" id="username" placeholder="Ваш ник...">
     <input type="password" id="password" placeholder="Пароль">
-    <p id="loginHint" style="font-size: 11px; color: #555;">Если вы впервые: введите ник и придумайте пароль.</p>
-    <br><button class="mc-button" onclick="handleLogin()">ВОЙТИ НА СЕРВЕР</button>
+    <br><button class="mc-button" onclick="handleLogin()">ВОЙТИ</button>
 </div>
 
 <div id="profileSec" class="container hidden">
@@ -47,96 +48,72 @@
     <p>Ник: <b id="userLabel"></b> | Статус: <b style="color:black">Игрок</b></p>
     <hr>
     <div id="reqForm">
-        <p>Связь с администрацией:</p>
-        <textarea id="requestText" placeholder="Напишите ваш вопрос или заявку..."></textarea>
+        <textarea id="requestText" placeholder="Напишите сообщение админу..."></textarea>
         <br><button class="mc-button" onclick="sendToAdmin()">ОТПРАВИТЬ</button>
     </div>
     <div id="reqOk" class="hidden">
-        <b id="statusInfo">Ожидание ответа...</b>
-        <br><br>
+        <b id="statusInfo">Ожидание...</b><br><br>
         <button class="mc-button" onclick="resetRequest()">НОВОЕ СООБЩЕНИЕ</button>
     </div>
 </div>
 
-<div id="adminSec" class="container hidden">
-    <h2 style="background:#800">ПАНЕЛЬ УПРАВЛЕНИЯ (Jokeyu)</h2>
-    <div id="requestList">Заявок нет</div>
+<div id="rulesSec" class="container hidden">
+    <h2>ПРАВИЛА</h2>
+    <div class="rule-box">1.1 Читы - БАН.<br>1.2 Гриф - БАН.</div>
 </div>
 
-<div id="rulesSec" class="container hidden">
-    <h2>ПРАВИЛА И НАКАЗАНИЯ</h2>
-    <div class="rule-box">
-        <b>1. ОБЩЕЕ ПОВЕДЕНИЕ</b><br>
-        1.1 Читы (Fly, X-Ray, KillAura и др.) — <b>Перманентный бан.</b><br>
-        1.2 Гриферство (разрушение чужих баз) — <b>Бан 14-30 дней.</b><br>
-        1.3 Использование багов игры — <b>Бан 7 дней.</b><br>
-        1.4 Лаг-машины — <b>Перманентный бан.</b><br><br>
-        
-        <b>2. ЧАТ И ОБЩЕНИЕ</b><br>
-        2.1 Оскорбление игроков — <b>Мут 1 час.</b><br>
-        2.2 Оскорбление администрации — <b>Мут 5 часов или Бан 1 день.</b><br>
-        2.3 Упоминание родных в оскорбительном ключе — <b>Перманентный бан.</b><br>
-        2.4 Реклама других проектов — <b>Перманентный бан.</b><br>
-        2.5 Спам / Капс / Флуд — <b>Мут 30 минут.</b><br><br>
-        
-        <b>3. ПРОЧЕЕ</b><br>
-        3.1 Деструктивные действия для сервера — <b>Бан по IP.</b><br>
-        3.2 Обман игроков при обмене — <b>Бан 3 дня.</b><br>
-        3.3 Выпрашивание ресурсов у админов — <b>Кик / Мут 15 мин.</b>
-    </div>
+<div id="adminSec" class="container hidden">
+    <h2 style="background:#800">АДМИН-ПАНЕЛЬ</h2>
+    <div id="requestList">Загрузка...</div>
 </div>
 
 <script>
-    const ADM_N = "Jokeyu";
-    const ADM_P = "KeL_12Lek5Joke";
-    
-    let users = JSON.parse(localStorage.getItem('lunex_v60_pass')) || [];
-
-    window.onload = function() {
-        const loggedUser = sessionStorage.getItem('logged');
-        const isAdmin = sessionStorage.getItem('isAdmin');
-        if(loggedUser) {
-            loginExecute(loggedUser, isAdmin === 'true');
-        }
+    // ТВОИ КЛЮЧИ
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgqMUjf12clWN5FZg7nPBg0QlWwtGXBnY",
+        authDomain: "lunex-4d0b2.firebaseapp.com",
+        projectId: "lunex-4d0b2",
+        databaseURL: "https://lunex-4d0b2-default-rtdb.firebaseio.com/", // Ссылка на БД
+        storageBucket: "lunex-4d0b2.firebasestorage.app",
+        messagingSenderId: "758665086032",
+        appId: "1:758665086032:web:93401d2dde23ef28337d55"
     };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const ADM_N = "Jokeyu", ADM_P = "KeL_12Lek5Joke";
+
+    function showSection(id) {
+        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
 
     function handleLogin() {
         const n = document.getElementById('username').value.trim();
         const p = document.getElementById('password').value;
-        if(!n || !p) return alert("Введите ник и пароль!");
+        if(!n || !p) return alert("Введите данные!");
 
-        // Проверка на админа
-        if(n === ADM_N) {
-            if(p === ADM_P) {
-                sessionStorage.setItem('isAdmin', 'true');
-                loginExecute(n, true);
-            } else {
-                alert("Неверный пароль администратора!");
-            }
+        if(n === ADM_N && p === ADM_P) {
+            sessionStorage.setItem('logged', n);
+            sessionStorage.setItem('isAdmin', 'true');
+            initApp();
             return;
         }
 
-        // Проверка игрока
-        let u = users.find(x => x.nick.toLowerCase() === n.toLowerCase());
-        
-        if(u) {
-            if(u.pass !== p) {
-                alert("Этот ник занят! Введите верный пароль.");
-                return;
-            }
-        } else {
-            // Регистрация
-            u = { nick: n, pass: p, msg: "", result: "" };
-            users.push(u);
-            save();
-        }
-
-        sessionStorage.setItem('isAdmin', 'false');
-        loginExecute(n, false);
+        db.ref('users/' + n).once('value').then(s => {
+            const u = s.val();
+            if(u && u.pass !== p) return alert("Ник занят!");
+            if(!u) db.ref('users/' + n).set({ nick: n, pass: p, msg: "", result: "" });
+            
+            sessionStorage.setItem('logged', n);
+            sessionStorage.setItem('isAdmin', 'false');
+            initApp();
+        });
     }
 
-    function loginExecute(n, isAdmin) {
-        sessionStorage.setItem('logged', n);
+    function initApp() {
+        const n = sessionStorage.getItem('logged');
+        const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
         document.getElementById('loginSec').classList.add('hidden');
         document.getElementById('topNav').classList.remove('hidden');
         document.getElementById('userLabel').innerText = n;
@@ -144,83 +121,50 @@
         if(isAdmin) {
             document.getElementById('adminNavBtn').classList.remove('hidden');
             showSection('adminSec');
+            watchAdmin();
         } else {
-            const u = users.find(x => x.nick === n);
-            updateProfileUI(u);
             showSection('profileSec');
+            watchUser(n);
         }
     }
 
-    function showSection(id) {
-        document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
-        if(id === 'adminSec') renderAdmin();
-        checkAlert();
+    function watchUser(n) {
+        db.ref('users/' + n).on('value', s => {
+            const u = s.val();
+            const f = document.getElementById('reqForm'), o = document.getElementById('reqOk'), st = document.getElementById('statusInfo');
+            if(u.msg || u.result) {
+                f.classList.add('hidden'); o.classList.remove('hidden');
+                st.innerText = u.result ? "ОТВЕТ АДМИНА: " + u.result : "Доставлено. Ждите.";
+                st.style.color = u.result === "ОДОБРЕНО" ? "green" : (u.result === "ОТКАЗАНО" ? "red" : "black");
+            } else { f.classList.remove('hidden'); o.classList.add('hidden'); }
+        });
     }
 
-    function updateProfileUI(u) {
-        if(!u) return;
-        if(u.msg || u.result) {
-            document.getElementById('reqForm').classList.add('hidden');
-            document.getElementById('reqOk').classList.remove('hidden');
-            const info = document.getElementById('statusInfo');
-            if(u.result) {
-                info.innerText = "ОТВЕТ АДМИНА: " + u.result;
-                info.style.color = u.result === "ОДОБРЕНО" ? "green" : "red";
-            } else {
-                info.innerText = "Сообщение доставлено! Ожидайте.";
-                info.style.color = "green";
-            }
-        } else {
-            document.getElementById('reqForm').classList.remove('hidden');
-            document.getElementById('reqOk').classList.add('hidden');
-        }
+    function watchAdmin() {
+        db.ref('users').on('value', s => {
+            const users = s.val() || {};
+            const list = Object.values(users).filter(u => u.msg);
+            document.getElementById('adminAlert').classList.toggle('hidden', list.length === 0);
+            document.getElementById('requestList').innerHTML = list.length ? list.map(u => `
+                <div class="req-card">
+                    <b>${u.nick}</b>: ${u.msg}<br><br>
+                    <button class="mc-button" onclick="decide('${u.nick}','ОДОБРЕНО')">ОДОБРИТЬ</button>
+                    <button class="mc-button" style="background:#800" onclick="decide('${u.nick}','ОТКАЗАНО')">ОТКАЗАТЬ</button>
+                </div>
+            `).join('') : "Сообщений нет.";
+        });
     }
 
     function sendToAdmin() {
-        const n = sessionStorage.getItem('logged');
-        const t = document.getElementById('requestText').value.trim();
-        if(!t) return;
-        users = users.map(u => u.nick === n ? {...u, msg: t, result: ""} : u);
-        save();
-        updateProfileUI(users.find(x => x.nick === n));
-        checkAlert();
+        const n = sessionStorage.getItem('logged'), t = document.getElementById('requestText').value.trim();
+        if(t) db.ref('users/' + n).update({ msg: t, result: "" });
     }
 
-    function renderAdmin() {
-        const l = document.getElementById('requestList');
-        const list = users.filter(x => x.msg);
-        l.innerHTML = list.length ? list.map(x => `
-            <div class="req-card">
-                <b>${x.nick}</b>: ${x.msg}<br><br>
-                <button class="mc-button" onclick="decide('${x.nick}', 'ОДОБРЕНО')">ОДОБРИТЬ</button>
-                <button class="mc-button" style="background:#800" onclick="decide('${x.nick}', 'ОТКАЗАНО')">ОТКАЗАТЬ</button>
-            </div>
-        `).join('') : "Сообщений нет.";
-        checkAlert();
-    }
-
-    function decide(n, res) {
-        users = users.map(u => u.nick === n ? {...u, msg: "", result: res} : u);
-        save();
-        renderAdmin();
-    }
-
-    function resetRequest() {
-        const n = sessionStorage.getItem('logged');
-        users = users.map(u => u.nick === n ? {...u, msg: "", result: ""} : u);
-        save();
-        updateProfileUI(users.find(x => x.nick === n));
-    }
-
-    function checkAlert() {
-        const pending = users.some(u => u.msg);
-        const mark = document.getElementById('adminAlert');
-        if(mark) mark.classList.toggle('hidden', !pending);
-    }
-
+    function decide(n, res) { db.ref('users/' + n).update({ msg: "", result: res }); }
+    function resetRequest() { db.ref('users/' + sessionStorage.getItem('logged')).update({ msg: "", result: "" }); }
     function logout() { sessionStorage.clear(); location.reload(); }
-    function save() { localStorage.setItem('lunex_v60_pass', JSON.stringify(users)); }
+
+    if(sessionStorage.getItem('logged')) initApp();
 </script>
 </body>
 </html>
